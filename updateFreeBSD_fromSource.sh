@@ -28,7 +28,13 @@ print_updateFreeBSD_scriptUsage() {
   "
 }
 updateFreeBSD_sourceOnly() {
-  svnlite up >/dev/null
+  subversionbinfile="/usr/local/bin/svn"
+  if [ -f $subversionbinfile ] && [ -x $subversionbinfile ]
+  then \
+    svn up >/dev/null
+  else \
+    svnlite up >/dev/null
+  fi
 }
 updateFreeBSD_kernel() {
   # we need to update build tools anyway, so doing world build here
