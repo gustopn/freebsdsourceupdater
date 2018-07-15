@@ -9,12 +9,9 @@ export updateFreeBSDparallelJobs=$( expr "$updateFreeBSDfoundCPUs" + 1 )
 # IMPORTANT: all of these functions assume that we are in /usr/src/ directory already!
 find_kernelConfFileName() {
   kernelConfIdent=$(uname -i)
-  if [ "$kernelConfIdent" == "GENERIC" ]
+  if [ -n "$kernelConfIdent" ]
   then \
-    return 1
-  else \
     echo "$kernelConfIdent"
-    return 0
   fi
 }
 print_updateFreeBSD_scriptUsage() {
@@ -38,12 +35,12 @@ updateFreeBSD_sourceOnly() {
 }
 updateFreeBSD_kernel() {
   # we need to update build tools anyway, so doing world build here
-  make -j"$updateFreeBSDparallelJobs" buildworld >/dev/null && if find_kernelConfFileName >/dev/null
-  then \
-    make -j"$updateFreeBSDparallelJobs" KERNCONF=$(find_kernelConfFileName) buildkernel >/dev/null
-  else \
-    make -j"$updateFreeBSDparallelJobs" buildkernel >/dev/null
-  fi && make installkernel >/dev/null
+  export KERNCONF=$(find_kernelConfFileName)
+  # what this lacks now is possibility for the user to force building a GENERIC kernel, skipping KERNCONF variable.
+  # that however would also need a warning, because that can break things on boot (for example PF firewall with ALTQ)
+  make -j"$updateFreeBSDparallelJobs" buildworld >/dev/null \
+    && make -j"$updateFreeBSDparallelJobs" buildkernel >/dev/null \
+    && make installkernel >/dev/null
 }
 updateFreeBSD_host() {
   make installworld >/dev/null
