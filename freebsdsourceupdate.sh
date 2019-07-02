@@ -1,7 +1,7 @@
 #!/bin/sh -x
 
 updateJails() {
-  jailpathlist="$(grep -e "{\$" /etc/jail.conf | awk '{ print "/jail/" $1 }')"
+  jailpathlist="$(grep -E "^([a-z0-9]){2,} {[}]?\$" /etc/jail.conf | awk '{ print "/jail/" $1 }')"
 
   for jailpathinstance in $jailpathlist
   do \
